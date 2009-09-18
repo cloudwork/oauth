@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Module>
+<!--
+     A little demonstration of the OAuth library for JavaScript.
+     This is kind of silly, because any OpenSocial container
+     provides an OAuth implementation built into makeRequest,
+     with better security than is possible in a gadget like this.
+
+     This is a gadget, as described in
+     http://code.google.com/apis/gadgets/docs/dev_guide.html
+     The URL of this spec is
+     http://oauth.googlecode.com/svn/code/javascript/example/gadget/oauth-example.xml
+     as usual for files in this Subversion repository.
+ -->
+  <ModulePrefs title="OAuth javascript/example/gadget"/>
+  <Content type="html">
+<![CDATA[
+    <script src="http://oauth.googlecode.com/svn/code/javascript/oauthTest.js"></script>
+    <script src="http://oauth.googlecode.com/svn/code/javascript/oauth.js"></script>
+    <script src="http://oauth.googlecode.com/svn/code/javascript/sha1.js"></script>
+    <script src="http://oauth.googlecode.com/svn/code/javascript/example/consumer.js"></script>
+    <button onclick="testOAuth()">Self Test</button><br/>
+    <button onclick="getRequestToken(consumer.madgex)">Get Request Token</button><br/>
+    <button onclick="getAccessToken(consumer.madgex, 'requestkey', 'requestsecret')">Get Access Token</button><br/>
+    <button onclick="getEcho(consumer.madgex, 'accesskey', 'accesssecret')">Echo</button><br/>
+    <button onclick="getEcho(consumer.madgex, 'accesskey', 'accessSecret')">Wrong Secret</button><br/>
+    <script>
+function getRequestToken(c) {
+    sendRequest( { method: 'POST'
+                 , action: c.serviceProvider.requestTokenURL
+                 , parameters: { oauth_signature_method: c.serviceProvider.signatureMethod
+                               , oauth_consumer_key: c.consumerKey
+                               }
+                 }
+               , { consumerSecret: c.consumerSecret
+                 , tokenSecret   : ''
+                 }
+               );
+};
+function getAccessToken(c, token, secret) {
+    sendRequest( { method: 'GET'
+                 , action: c.serviceProvider.accessTokenURL
+                 , parameters: { oauth_signature_method: c.serviceProvider.signatureMethod
+                               , oauth_consumer_key: c.consumerKey
+                               , oauth_token: token
+                               }
+                 }
+               , { consumerSecret: c.consumerSecret
+                 , tokenSecret   : secret
+                 }
+               );
+};
+function getEcho(c, token, secret) {
+    sendRequest( { method: 'GET'
+                 , action: c.serviceProvider.echoURL
+                 , parameters: [ ['oauth_signature_method', c.serviceProvider.signatureMethod]
+                               , ['oauth_consumer_key', c.consumerKey]
+                               , ['oauth_token', token]
+                               , ['hello', 'world']
+                               , ['hello', 'again']
+                               ]
+                 }
+               , { consumerSecret: c.consumerSecret
+                 , tokenSecret   : secret
+                 }
+               );
+};
+function sendRequest(message, accessor) {
+    OAuth.setTimestampAndNonce(message);
+    OAuth.SignatureMethod.sign(message, accessor);
+    var method = METHOD_TYPES[message.method];
+    var URL = message.action;
+    var params = {};
+    params[gadgets.io.RequestParameters.METHOD] = method;
+    if (method == gadgets.io.MethodType.POST) {
+        params[gadgets.io.RequestParameters.HEADERS] = {'Content-Type': 'application/x-www-form-urlencoded'};
+        params[gadgets.io.RequestParameters.POST_DATA] = OAuth.formEncode(message.parameters);
+    } else {
+        URL = OAuth.addToURL(URL, message.parameters);
+        // This would be better, but you can't get the headers from the response.
+        // params[gadgets.io.RequestParameters.HEADERS]
+        // = {Authorization: OAuth.getAuthorizationHeader(message.parameters)};
+    }
+    params[gadgets.io.RequestParameters.CONTENT_TYPE] = gadgets.io.ContentType.TEXT;
+    gadgets.io.makeRequest(URL, showResponse, params);
+
+    // var client = new XMLHttpRequest();
+    // client.onreadystatechange = handler;
+    // This will fail, indicating 'Access Denied':
+    // client.open(message.method, message.action);
+    // client.send();
+    // I suppose the implementation of XMLHttpRequest is
+    // provided by the browser, which restricts access.
+};
+function showResponse(response) {
+    showObject(response);
+    showObject(response.errors);
+    showObject(response.headers);
+};
+function showObject(thing) {
+    if (thing != null) {
+        var msg = "";
+        for (var t in thing) {
+            if (thing[t] !== undefined) {
+                msg += (t + ": " + thing[t] + "\n");
+            }
+        }
+        if (msg != "") {
+            alert(msg);
+        }
+    }
+};
+var METHOD_TYPES = { 'GET'   : gadgets.io.MethodType.GET
+                   , 'POST'  : gadgets.io.MethodType.POST
+                   , 'PUT'   : gadgets.io.MethodType.PUT
+                   , 'DELETE': gadgets.io.MethodType.DELETE
+                   };
+    </script>
+]]>
+  </Content>
+</Module>

@@ -1,0 +1,84 @@
+<html>
+<body>
+Here's a very simple example of using
+<a href="http://oauth.net/">OAuth</a> via
+<a href="http://www.w3.org/TR/XMLHttpRequest/">XMLHttpRequest</a>.
+Each of these buttons will request OAuth tokens,
+and display the resulting HTTP responses in popup windows.
+<p>
+<input type="button" value="term.ie"    onclick="getTokens('termie')"/>
+<input type="button" value="madgex"     onclick="getTokens('madgex')"/>
+<input type="button" value="mediamatic" onclick="getTokens('mediamatic')"/>
+<p>
+This won't work if you load this page from an HTTP server, because
+it attempts to send requests via XMLHttpRequest to term.ie or madgex.com.
+Most browsers forbid this for
+<a href="http://www.xml.com/pub/a/2005/11/09/fixing-ajax-xmlhttprequest-considered-harmful.html">security reasons</a>.
+You can make it work with Microsoft Internet Explorer, if you
+copy this page to a file and direct your browser to load from the file.
+<script type="text/javascript" src="http://oauth.googlecode.com/svn/code/javascript/sha1.js"></script>
+<script type="text/javascript" src="http://oauth.googlecode.com/svn/code/javascript/oauth.js"></script>
+<script type="text/javascript" src="http://oauth.googlecode.com/svn/code/javascript/example/consumer.js"></script>
+<script type="text/javascript">
+function getTokens(consumerName) {
+    var accessor = consumer[consumerName];
+    var message = {
+        method: "post", action: accessor.serviceProvider.requestTokenURL
+      , parameters: [["scope", "http://www.google.com/m8/feeds/"]]
+    };
+    var requestBody = OAuth.formEncode(message.parameters);
+    OAuth.completeRequest(message, accessor);
+    var authorizationHeader = OAuth.getAuthorizationHeader("", message.parameters);
+    var requestToken = newXMLHttpRequest();
+    requestToken.onreadystatechange = function receiveRequestToken() {
+        if (requestToken.readyState == 4) {
+            var dump = requestToken.status+" "+requestToken.statusText
+                  +"\n"+requestToken.getAllResponseHeaders()
+                  +"\n"+requestToken.responseText;
+            if (confirm(dump)) {
+                var results = OAuth.decodeForm(requestToken.responseText);
+                message = {method: "post", action: accessor.serviceProvider.accessTokenURL};
+                OAuth.completeRequest(message,
+                    { consumerKey   : accessor.consumerKey
+                    , consumerSecret: accessor.consumerSecret
+                    , token         : OAuth.getParameter(results, "oauth_token")
+                    , tokenSecret   : OAuth.getParameter(results, "oauth_token_secret")
+                    });
+                var requestAccess = newXMLHttpRequest();
+                requestAccess.onreadystatechange = function receiveAccessToken() {
+                    if (requestAccess.readyState == 4) {
+                        alert(requestAccess.status+" "+requestAccess.statusText
+                              +"\n"+requestAccess.getAllResponseHeaders()
+                              +"\n"+requestAccess.responseText);
+                    }
+                };
+                requestAccess.open(message.method, message.action, true); 
+                requestAccess.setRequestHeader("Authorization", OAuth.getAuthorizationHeader("", message.parameters));
+                requestAccess.send();
+            }
+        }
+    };
+    requestToken.open(message.method, message.action, true); 
+    requestToken.setRequestHeader("Authorization", authorizationHeader);
+    requestToken.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    requestToken.send(requestBody);
+}
+function newXMLHttpRequest() {
+    try{
+        return new XMLHttpRequest();
+    } catch(e) {
+        try{
+            return new ActiveXObject("Msxml2.XMLHTTP");
+        } catch(e) {
+            try{
+                return new ActiveXObject("Microsoft.XMLHTTP");
+            } catch(e) {
+                alert("Sorry, your browser doesn't support AJAX.");
+                throw e;
+            }
+        }
+    }
+}
+</script>
+</body>
+</html>

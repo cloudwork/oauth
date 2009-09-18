@@ -1,0 +1,24 @@
+<HTML>
+  <head>
+    <script type="text/javascript" src="consumer.js"></script>
+  </head>
+  <body onLoad="consumer.initializeForm(document.request, document.etc, 'userAuthorization')">
+    <form name="request" method="GET" action="" onSubmit="this.action=document.etc.URL.value">
+        <input type="submit" value="Authorize"/><br/>
+        request token:    <input name="oauth_token"            type="text" size="64"/><br/>
+        callback URL:     <input name="oauth_callback"         type="text" size="80"/>
+    </form>
+    <form name="etc">
+        Service provider:
+        <select name="selector" onChange="consumer.initializeForm(document.request, document.etc, 'userAuthorization')">
+            <option value="example">Example Provider
+            <option value="mediamatic">mediamatic.nl
+            <option value="termie" selected="true">term.ie
+        </select><br/>
+        URL:              <input name="URL"                    type="text" size="80"/><br/>
+    </form>
+    <script type="text/javascript">
+        document.request.oauth_callback.value = document.URL.substring(0, document.URL.replace(/\\/g, '/').lastIndexOf('/') + 1) + "accessToken.html";
+    </script>
+  </body>
+</HTML>
