@@ -3,6 +3,13 @@ OAuth
 
 This is a port of the [Netflix OAuth Library][1] to Narwhal.
 
+Status
+------
+
+* Initial port. Not tested.
+* Tests required.
+* Examples are not yet ported and need review.
+
 Acknowledgments
 ---------------
 
