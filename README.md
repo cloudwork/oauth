@@ -6,8 +6,8 @@ This is a port of the [Netflix OAuth Library][1] to Narwhal.
 Status
 ------
 
-* Initial port. Not tested.
-* Tests required.
+* Initial port. All tests pass.
+* Relies on Netflix SHA Library which will be removed when Narhal's SHA module exports hmac_sha(key, data).
 * Examples are not yet ported and need review.
 
 Acknowledgments
