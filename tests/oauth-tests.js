@@ -98,8 +98,6 @@ exports.testCompleteRequest = function() {
 };
 
 
-/*
-
 var OAUTH_A_BASE_STRING = "GET&http%3A%2F%2Fphotos.example.net%2Fphotos&"
     + "file%3Dvacation.jpg%26oauth_consumer_key%3Ddpf43f3p2l4k3l03%26oauth_nonce%3Dkllo9940pd9333jh%26oauth_signature_method%3DHMAC-SHA1%26oauth_timestamp%3D1191242096%26oauth_token%3Dnnch734d00sl2jdk%26oauth_version%3D1.0%26size%3Doriginal";
 
@@ -122,27 +120,21 @@ var BASES = //
             , oauth_signature: "ignored", oauth_signature_method: "HMAC-SHA1"
             }
             , OAUTH_A_BASE_STRING ]
-    };
+};
 
-function testGetBaseString() {
+exports.testGetBaseString = function() {
     for (var label in BASES) {
-        try {
-            var base = BASES[label];
-            var b = 0;
-            var method = base[b++];
-            var action = base[b++];
-            var parameters = base[b++];
-            var expected = base[b++];
-            var actual = OAuth.SignatureMethod.getBaseString({method: method, action: action, parameters: parameters});
-            if (expected != actual) {
-                alert(label + "\n" + actual + " (actual)\n" + expected + " (expected)");
-            }
-        } catch(e) {
-            alert(e);
-        }
-    }
-    // alert("tested OAuth.SignatureMethod.getBaseString");
-}
+        var base = BASES[label];
+        var b = 0;
+        var method = base[b++];
+        var action = base[b++];
+        var parameters = base[b++];
+        var expected = base[b++];
+        var actual = OAuth.SignatureMethod.getBaseString({method: method, action: action, parameters: parameters});
+
+        assert.eq(expected, actual, label);
+    };
+};
 
 var SIGNATURES =
 // label, method, consumer secret, token secret, base string, expected
@@ -155,26 +147,19 @@ var SIGNATURES =
 , "OAuth A request": [ "PLAINTEXT", "kd94hf93k423kf44", null, null, "kd94hf93k423kf44&" ]
 };
 
-function testGetSignature() {
-    for (label in SIGNATURES) {
-        try {
-            var signature = SIGNATURES[label];
-            var s = 0;
-            var methodName = signature[s++];
-            var consumerSecret = signature[s++];
-            var tokenSecret = signature[s++];
-            var baseString = signature[s++];
-            var expected = signature[s++];
-            var signer = OAuth.SignatureMethod.newMethod(methodName,
-                         {consumerSecret: consumerSecret, tokenSecret: tokenSecret});
-            var actual = signer.getSignature(baseString);
-            if (expected != actual) {
-                alert(label + "\n" + actual + " (actual)\n" + expected + " (expected)");
-            }
-        } catch(e) {
-            alert(label + ": " + e);
-        }
-    }
-    // alert("tested OAuth.SignatureMethod.getSignature");
-}
-*/
+exports.testGetSignature = function() {
+    for (var label in SIGNATURES) {
+        var signature = SIGNATURES[label];
+        var s = 0;
+        var methodName = signature[s++];
+        var consumerSecret = signature[s++];
+        var tokenSecret = signature[s++];
+        var baseString = signature[s++];
+        var expected = signature[s++];
+        var signer = OAuth.SignatureMethod.newMethod(methodName,
+                     {consumerSecret: consumerSecret, tokenSecret: tokenSecret});
+        var actual = signer.getSignature(baseString);
+
+        assert.eq(expected, actual, label);
+    };
+};
