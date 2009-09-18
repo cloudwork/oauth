@@ -42,62 +42,63 @@ exports.testEncode = function() {
     };
 };
 
-/*
+exports.testGetParameterList = function() {
+    var list;
 
-function testGetParameters() {
-    var list = OAuth.getParameterList(null);
-    if (list == null || !(list instanceof Array) || list.length != 0) {
-        alert("getParameterList(null) = " + list);
-    }
+    list = OAuth.getParameterList(null);
+    assert.eq([], list);
+
     list = OAuth.getParameterList('');
-    if (list == null || !(list instanceof Array) || list.length != 0) {
-        alert("getParameterList('') = " + list);
-    }
+    assert.eq([], list);
+};
+
+exports.testGetParameterMap = function() {
     var map = OAuth.getParameterMap(null);
-    if (map == null || (map instanceof Array) || typeof map != "object") {
-        alert("getParameterMap(null) = " + map);
-    }
-    var actual = OAuth.getParameter({x: 'a', y: 'b'}, 'x');
-    if (actual != 'a') {
-        alert("getParameter({}, 'x') = " + actual);
-    }
+    assert.isFalse(null === map);
+    assert.isFalse(map instanceof Array);
+    assert.isTrue(map instanceof Object);
+};
+
+exports.testGetParameter = function() {
+    var actual;
+
+    actual = OAuth.getParameter({x: 'a', y: 'b'}, 'x');
+    assert.eq('a', actual);
+
     actual = OAuth.getParameter([['x', 'a'], ['y', 'b'], ['x', 'c']], 'x');
-    if (actual != 'a') {
-        alert("getParameter([], 'x') = " + actual);
-    }
+    assert.eq('a', actual);
+};
+
+exports.testGetAuthorizationHeader = function() {
+    var actual;
     var expected = 'OAuth realm="R",oauth_token="T",oauth_w%40%21rd="%23%40%2A%21"';
+
     actual = OAuth.getAuthorizationHeader('R', [['a', 'b'], ['oauth_token', 'T'], ['oauth_w@!rd', '#@*!']]);
-    if (actual == null || actual != expected) {
-        alert("getAuthorizationHeader\n" + expected + " != \n" + actual);
-    }
+    assert.isFalse(null === actual);
+    assert.eq(expected, actual);
+
     actual = OAuth.getAuthorizationHeader('R', {a: 'b', oauth_token: 'T', 'oauth_w@!rd': '#@*!'});
-    if (actual == null || actual != expected) {
-        alert("getAuthorizationHeader\n" + expected + " != \n" + actual);
-    }
+    assert.isFalse(null === actual);
+    assert.eq(expected, actual);
+};
+
+exports.testCompleteRequest = function() {
     var message = {action: 'http://localhost', parameters: {}};
     OAuth.completeRequest(message, {consumerKey: 'CK', token: 'T'});
-    assertMemberEquals(message, 'method', "GET");
-    map = message.parameters;
-    assertMemberEquals(map, 'oauth_consumer_key', 'CK');
-    assertMemberEquals(map, 'oauth_token', 'T');
-    assertMemberEquals(map, 'oauth_version', '1.0');
-    assertMemberNotNull(map, 'oauth_timestamp');
-    assertMemberNotNull(map, 'oauth_nonce');
-}
 
-function assertMemberEquals(map, name, expected) {
-    var actual = map[name];
-    if (actual != expected) {
-        alert(name + '=' + actual + ' (not ' + expected + ')');
-    }
-}
+    assert.eq('GET', message['method']);
 
-function assertMemberNotNull(map, name) {
-    var actual = map[name];
-    if (!actual) {
-        alert(name + '=' + actual);
-    }
-}
+    var map = message.parameters;
+
+    assert.eq('CK', map['oauth_consumer_key']);
+    assert.eq('T', map['oauth_token']);
+    assert.eq('1.0', map['oauth_version']);
+    assert.isFalse(null === map['oauth_timestamp']);
+    assert.isFalse(null === map['oauth_nonce']);
+};
+
+
+/*
 
 var OAUTH_A_BASE_STRING = "GET&http%3A%2F%2Fphotos.example.net%2Fphotos&"
     + "file%3Dvacation.jpg%26oauth_consumer_key%3Ddpf43f3p2l4k3l03%26oauth_nonce%3Dkllo9940pd9333jh%26oauth_signature_method%3DHMAC-SHA1%26oauth_timestamp%3D1191242096%26oauth_token%3Dnnch734d00sl2jdk%26oauth_version%3D1.0%26size%3Doriginal";
