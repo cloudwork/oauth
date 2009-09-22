@@ -7,7 +7,6 @@ Status
 ------
 
 * Initial port. All tests pass.
-* Relies on Netflix SHA Library which will be removed when Narwhal's SHA module exports hmac_sha(key, data).
 * Examples are not yet ported and need review.
 
 Acknowledgments
