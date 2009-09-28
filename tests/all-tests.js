@@ -19,7 +19,7 @@
  */
 
 var assert = require("test/assert"),
-    OAuth = require("OAuth").OAuth;
+    OAuth = require("OAuth");
 
 var ENCODING // From http://wiki.oauth.net/TestCases
   = [ ["abcABC123", "abcABC123"]
