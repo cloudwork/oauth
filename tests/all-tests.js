@@ -130,7 +130,7 @@ exports.testGetBaseString = function() {
         var action = base[b++];
         var parameters = base[b++];
         var expected = base[b++];
-        var actual = OAuth.SignatureMethod.getBaseString({method: method, action: action, parameters: parameters});
+        var actual = OAuth.getBaseString({method: method, action: action, parameters: parameters});
 
         assert.eq(expected, actual, label);
     };
@@ -156,7 +156,7 @@ exports.testGetSignature = function() {
         var tokenSecret = signature[s++];
         var baseString = signature[s++];
         var expected = signature[s++];
-        var signer = OAuth.SignatureMethod.newMethod(methodName,
+        var signer = OAuth.newMethod(methodName,
                      {consumerSecret: consumerSecret, tokenSecret: tokenSecret});
         var actual = signer.getSignature(baseString);
 
